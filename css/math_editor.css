@@ -1,0 +1,385 @@
+body {
+  font-family: Verdana, Tahoma, "Trebuchet MS", "DejuVu Sans",
+    "Bitstream Vera Sans", sans-serif, "msbm7";
+  padding: 0px;
+  margin: 0px;
+}
+
+@font-face {
+  font-family: "cmmi7";
+  src: url("../fonts/cmmi10-2/cmmi10-2.eot"); /* IE9 */
+  src: url("../fonts/cmmi10-2/cmmi10-2.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/cmmi10-2/cmmi10-2.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/cmmi10-2/cmmi10-2.ttf")
+      format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/cmmi10-2/cmmi10-2.svg#svgFontName")
+      format("svg");
+}
+
+@font-face {
+  font-family: "cmr7";
+  src: url("../fonts/cmr7-10/cmr7-10.eot"); /* IE9 */
+  src: url("../fonts/cmr7-10/cmr7-10.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/cmr7-10/cmr7-10.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/cmr7-10/cmr7-10.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/cmr7-10/cmr7-10.svg#svgFontName")
+      format("svg");
+}
+
+@font-face {
+  font-family: "cmex7";
+  src: url("../fonts/cmex7-1/cmex7-1.eot"); /* IE9 */
+  src: url("../fonts/cmex7-1/cmex7-1.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/cmex7-1/cmex7-1.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/cmex7-1/cmex7-1.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/cmex7-1/cmex7-1.svg#svgFontName")
+      format("svg");
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "cmey7";
+  src: url("../fonts/cmey7-3/cmey7-3.eot"); /* IE9 */
+  src: url("../fonts/cmey7-3/cmey7-3.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/cmey7-3/cmey7-3.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/cmey7-3/cmey7-3.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/cmey7-3/cmey7-3.svg#svgFontName")
+      format("svg");
+}
+
+@font-face {
+  font-family: "msbm7";
+  src: /* IE6-IE8 */ url("../fonts/msbm10-1/msbm10-1.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/msbm10-1/msbm10-1.ttf")
+      format("truetype"),
+    /*,*/ /* Safari, Android, iOS */
+      url("../fonts/msbm10-1/msbm10-1.svg#svgFontName") format("svg");
+}
+
+@font-face {
+  font-family: "imescr7";
+  src: url("../fonts/imescr7-1/imescr7-1.eot"); /* IE9 */
+  src: url("../fonts/imescr7-1/imescr7-1.eot?#iefix")
+      format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/imescr7-1/imescr7-1.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/imescr7-1/imescr7-1.ttf")
+      format("truetype"),
+    /* Safari, Android, iOS */
+      url("../fonts/imescr7-1/imescr7-1.svg#svgFontName") format("svg");
+}
+
+@font-face {
+  font-family: "eufm7";
+  src: url("../fonts/eufm10-1/eufm10-1.eot"); /* IE9 */
+  src: url("../fonts/eufm10-1/eufm10-1.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("../fonts/eufm10-1/eufm10-1.woff") format("woff"),
+    /* Modern Browsers */ url("../fonts/eufm10-1/eufm10-1.ttf")
+      format("truetype"),
+    /* Safari, Android, iOS */ url("../fonts/eufm10-1/eufm10-1.svg#svgFontName")
+      format("svg");
+}
+
+.equation-editor {
+  border-bottom: 1pt solid black;
+  text-align: left;
+  display: block;
+  padding: 10px;
+}
+
+.equation-editor-current {
+  color: red;
+}
+
+.equation-container {
+  position: relative;
+  margin: 5pt;
+  display: inline-block;
+}
+
+.equation-editor-preview {
+  left: 0;
+  top: 0;
+  z-index: 1;
+  position: relative;
+  font-size: 120%;
+}
+
+.equation-editor-anchor {
+  width: 1pt;
+  z-index: 2;
+  position: absolute;
+  background-color: green;
+}
+
+.equation-container:focus-visible {
+  outline: none;
+}
+
+.equation-editor-caret {
+  width: 1pt;
+  z-index: 3;
+  position: absolute;
+  background-color: blue;
+}
+
+.editor-toolbar {
+  overflow: hidden;
+  float: left;
+  width: 100%;
+  display: flex;
+  margin: 10px;
+}
+
+.equation-placeholder {
+  color: darkgray;
+}
+
+.equation-editor-highlighted {
+  background-color: rgb(200, 241, 248);
+}
+
+/* tab bar stylinging */
+.tab_bar {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-y: hidden;
+  white-space: nowrap;
+  padding: 5px 0 0 0;
+}
+
+.tab_bar button {
+  padding: 1px 6px;
+}
+
+.button_head {
+  width: 10px;
+  background: transparent;
+  border: 0;
+}
+
+.palettebutton {
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  overflow: hidden;
+  direction: ltr;
+  outline-width: 0;
+}
+
+.palettebutton_focus,
+.palettebutton:hover {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #000000;
+  border-bottom: none;
+  outline: none;
+  background: #ffffff;
+  outline-width: 0;
+}
+
+.efmase_palettes {
+  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  margin: -1px 0 0 0;
+  padding: 0;
+}
+
+.efmase_palette_grp_div {
+  display: block;
+}
+
+.tab_bar table tr td {
+  padding: 0 0 0 0;
+}
+
+.efmase_palettebutton {
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  overflow: hidden;
+  direction: ltr;
+  outline-width: 0;
+}
+
+.efmase_palettebutton:hover {
+  border: 2px solid #778e9a;
+  outline: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+td {
+  display: table-cell;
+  vertical-align: inherit;
+  padding: 0px 6px 0px 2px;
+}
+
+.palette_wrapper table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 0;
+}
+
+table > tr {
+  vertical-align: middle;
+}
+
+.tab_bar table {
+  border-spacing: 0;
+}
+
+/* Don't keep everyting from it */
+
+.tbody_separater {
+  border-right: 1px solid #9eb0c0;
+}
+
+.palette_wrapper {
+  color: #000;
+  background: transparent;
+  display: block;
+  margin: 0 6px 0 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-y: hidden; /*for IE8*/
+  white-space: nowrap;
+}
+.palette_wrapper table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 0;
+}
+
+.palette_wrapper .efmase_palettebutton {
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  overflow: hidden;
+  direction: ltr;
+  outline-width: 0;
+}
+
+.palette_wrapper {
+  border: 2px solid transparent;
+  background: transparent;
+  overflow: scroll;
+}
+
+.efmase_palettebtn_disabled {
+  opacity: 0.4;
+  filter: alpha(opacity=40);
+}
+
+.palette_wrapper .efmase_palettebutton:hover {
+  border: 2px solid #778e9a;
+  outline: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+.palette_wrapper .efmase_palettebutton > img1 {
+  /* Button */
+  -moz-transform: scale(0.5);
+  -webkit-transform: scale(0.5);
+  transform: scale(0.5);
+}
+
+.palette_wrapper > table > tr > td:nth-child(n + 2) {
+  border-left: 1px solid #bdbdbd;
+}
+
+#mathtype_matrix_pad {
+  position: absolute;
+  z-index: 3;
+  top: 30px;
+  left: 30px;
+  font-family: sans-serif;
+  min-width: 0;
+}
+#mathtype_matrix_pad > div {
+  color: #778e9a;
+  border: 1px solid #b1b3b4;
+  padding-top: 1px;
+  background-color: #edf2f4;
+}
+
+.mathtype_panel_close {
+  float: right;
+  display: inline-block;
+  padding: 0px 4px;
+  background: #ccc;
+}
+
+.mathtype_panel_close:hover,
+.mathtype_panel_close_hover {
+  float: right;
+  display: inline-block;
+  padding: 0px 4px;
+  background: #ccc;
+  color: #fff;
+  cursor: pointer;
+}
+
+#efmase_pad_table {
+  border-collapse: collapse;
+  border-spacing: 111px;
+  margin: 0;
+  width: 100%;
+}
+#efmase_pad_table tbody tr td {
+  margin: 0px;
+  padding: 1px;
+}
+.efmase_pad_btn {
+  width: 13px;
+  height: 13px;
+  border: 1px solid #b1b3b4;
+  cursor: pointer;
+  background-color: #fff;
+}
+.efmase_pad_label {
+  font-size: 12px;
+  width: 63px;
+}
+.efmase_pad_input {
+  border: 1px solid #b1b3b4;
+  padding: 0;
+  margin: 0;
+  width: 35px;
+  text-align: right;
+}
+
+@namespace url("http://www.w3.org/1999/xhtml");
+@namespace m url("http://www.w3.org/1998/Math/MathML");
+
+@font-face {
+  font-family: Fira Math;
+  src: local("Fira Math"), local("FiraMath-Regular"),
+    url("FiraMath-Regular.woff2"), url("FiraMath-Regular.woff");
+}
+
+mjx-utext {
+  font-family: "cmr7";
+}
+
+.xSmall {
+  font-size: x-small !important;
+}
+
+#tinymce-frame {
+  width: 100%;
+  height: 400px;
+  border: none;
+}
+.tinymce-wrapper {
+  width: 100%;
+}
+.iframe-container {
+  width: 100%;
+  height: 100vh;
+}
