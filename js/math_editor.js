@@ -1,5 +1,6 @@
 import { buttonMethodMap } from "./palette_buttons_actions.js";
-import { createMatrix } from "./common.js";
+import { createMatrix, getImageHTML } from "./common.js";
+
 const createMathEditor = (editorContainer, toolBar) => {
   const equationContainer = document.createElement("div");
   equationContainer.tabIndex = 0;
@@ -20,7 +21,10 @@ const createMathEditor = (editorContainer, toolBar) => {
   //MathML VDOM
   const virtualDOM = document.createElement("math");
   virtualDOM.appendChild(document.createElement("mrow"));
+
+  //current caret position
   let caret = 0;
+
   //stores caret postion relative to equation container
   let caretPositions;
   let uniqueId = 0;
@@ -253,7 +257,12 @@ const createMathEditor = (editorContainer, toolBar) => {
         }
         updateEquation();
         break;
-
+      case "Enter":
+        const ele = document.createElement("mspace");
+        ele.setAttribute("linebreak", "newline");
+        insert(ele, 1);
+        updateEquation();
+        break;
       default:
     }
     if (e.key.length === 1) {
@@ -283,6 +292,7 @@ const createMathEditor = (editorContainer, toolBar) => {
   let prevPalette = document.getElementById(toolBarMap["Basic"]);
   prevPalette.style.display = "block";
   prevPaletteButton.classList.add("palettebutton_focus");
+
   toolBar.addEventListener("mouseover", (e) => {
     if (Object.keys(toolBarMap).includes(e.target.title)) {
       if (prevPalette) {
@@ -343,26 +353,15 @@ const createMathEditor = (editorContainer, toolBar) => {
     matrixPadDiv.removeAttribute("isIdentityMatrix");
   };
 
-  document.getElementById("efmase_pad_table").addEventListener("click", (e) => {
-    if (e.target.tagName.toLowerCase() === "div") {
-      createMatrixWithTabInputs();
-    }
+  document.getElementById("qwerty_pad_table").addEventListener("click", (e) => {
+    if (e.target.tagName.toLowerCase() === "div") createMatrixWithTabInputs();
   });
 
   document
     .getElementById("matrix_panel_4")
     .addEventListener("click", createMatrixWithTabInputs);
 
-  //Insert MathML
-  document.getElementById("insert_mathml").addEventListener("click", () => {
-    const wrapper = document.createElement("div");
-    wrapper.appendChild(virtualDOM);
-    window.insertMath(
-      wrapper.innerHTML.replace(/ id=[^>]*/g, "").replace(/amp;*/g, "")
-    );
-  });
-
-  window.insertMathML = (mathml) => {
+  const insertMathML = (mathml) => {
     caret = 0;
     virtualDOM.innerHTML = mathml;
     updateEquation();
@@ -373,6 +372,44 @@ const createMathEditor = (editorContainer, toolBar) => {
   document.getElementById("math-editor").addEventListener("click", (e) => {
     if (e.target.firstElementChild) {
       e.target.firstElementChild.focus();
+      caret = caretPositions.length - 1;
+      displayEquation();
+    }
+  });
+
+  //For cross-origin/cross-window communication(iframe)
+  let initialLoad = true;
+  window.addEventListener("message", (event) => {
+    const mathTypeWindow = event.source.document.getElementById("myIframe");
+    mathTypeWindow.style =
+      "bottom: 0px;right: 10px;height: 422px;width: 700px;border: 1px solid lightgrey;background: #fafafa;z-index: 999999;position: fixed;bottom: 3px;right: 3px;box-shadow: rgb(0 0 0 / 16%) 0px 3px 8px 6px;display: block; border-radius: 3%;";
+    if (initialLoad) {
+      initialLoad = false;
+      document
+        .getElementById("close_mathType_window")
+        .addEventListener("click", () => {
+          insertMathML("<mrow></mrow>");
+          mathTypeWindow.style.display = "none";
+        });
+
+      document.getElementById("insert_mathml").addEventListener("click", () => {
+        const wrapper = document.createElement("div");
+        wrapper.appendChild(virtualDOM);
+        event.source.postMessage(
+          getImageHTML(
+            wrapper.innerHTML.replace(/ id=[^>]*/g, "").replace(/amp;*/g, ""),
+            event.source.MathJax.mathml2svg
+          )
+        );
+        insertMathML("<mrow></mrow>");
+        mathTypeWindow.style.display = "none";
+      });
+    }
+    if (event.data.includes("<math>")) {
+      mathTypeWindow.style.display = "block";
+      caret = 0;
+      virtualDOM.innerHTML = event.data;
+      updateEquation();
       caret = caretPositions.length - 1;
       displayEquation();
     }

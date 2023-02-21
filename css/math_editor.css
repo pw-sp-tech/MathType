@@ -179,14 +179,14 @@ body {
   outline-width: 0;
 }
 
-.efmase_palettes {
+.qwerty_palettes {
   border-top: 1px solid #000000;
   border-bottom: 1px solid #000000;
   margin: -1px 0 0 0;
   padding: 0;
 }
 
-.efmase_palette_grp_div {
+.qwerty_palette_grp_div {
   display: block;
 }
 
@@ -194,7 +194,7 @@ body {
   padding: 0 0 0 0;
 }
 
-.efmase_palettebutton {
+.qwerty_palettebutton {
   border: 2px solid transparent;
   cursor: pointer;
   background: transparent;
@@ -203,7 +203,7 @@ body {
   outline-width: 0;
 }
 
-.efmase_palettebutton:hover {
+.qwerty_palettebutton:hover {
   border: 2px solid #778e9a;
   outline: none;
   -webkit-border-radius: 3px;
@@ -254,7 +254,7 @@ table > tr {
   margin: 0;
 }
 
-.palette_wrapper .efmase_palettebutton {
+.palette_wrapper .qwerty_palettebutton {
   border: 2px solid transparent;
   cursor: pointer;
   background: transparent;
@@ -269,12 +269,12 @@ table > tr {
   overflow: scroll;
 }
 
-.efmase_palettebtn_disabled {
+.qwerty_palettebtn_disabled {
   opacity: 0.4;
   filter: alpha(opacity=40);
 }
 
-.palette_wrapper .efmase_palettebutton:hover {
+.palette_wrapper .qwerty_palettebutton:hover {
   border: 2px solid #778e9a;
   outline: none;
   -webkit-border-radius: 3px;
@@ -282,7 +282,7 @@ table > tr {
   border-radius: 3px;
 }
 
-.palette_wrapper .efmase_palettebutton > img1 {
+.palette_wrapper .qwerty_palettebutton > img1 {
   /* Button */
   -moz-transform: scale(0.5);
   -webkit-transform: scale(0.5);
@@ -325,28 +325,28 @@ table > tr {
   cursor: pointer;
 }
 
-#efmase_pad_table {
+#qwerty_pad_table {
   border-collapse: collapse;
   border-spacing: 111px;
   margin: 0;
   width: 100%;
 }
-#efmase_pad_table tbody tr td {
+#qwerty_pad_table tbody tr td {
   margin: 0px;
   padding: 1px;
 }
-.efmase_pad_btn {
+.qwerty_pad_btn {
   width: 13px;
   height: 13px;
   border: 1px solid #b1b3b4;
   cursor: pointer;
   background-color: #fff;
 }
-.efmase_pad_label {
+.qwerty_pad_label {
   font-size: 12px;
   width: 63px;
 }
-.efmase_pad_input {
+.qwerty_pad_input {
   border: 1px solid #b1b3b4;
   padding: 0;
   margin: 0;

@@ -21,7 +21,7 @@ document
   .addEventListener("click", closeMatrixPad);
 
 document
-  .getElementById("efmase_pad_table")
+  .getElementById("qwerty_pad_table")
   .addEventListener("mouseover", (e) => {
     if (e.target.tagName.toLowerCase() === "div") {
       let columnIndex = e.target.parentNode.cellIndex;
@@ -34,10 +34,4 @@ document
         rowIndex = columnIndex = Math.max(columnIndex, rowIndex);
       handleTableCellHover(rowIndex, columnIndex);
     }
-  });
-
-document
-  .getElementById("close_mathType_window")
-  .addEventListener("click", () => {
-    window.closeMathTypeWindow();
   });
