@@ -390,38 +390,42 @@ const createMathEditor = (editorContainer, toolBar) => {
   //For cross-origin/cross-window communication(iframe)
   let initialLoad = true;
   window.addEventListener("message", (event) => {
-    const mathTypeWindow = event.source.document.getElementById("myIframe");
-    mathTypeWindow.style =
-      "bottom: 0px;right: 10px;height: 422px;width: 700px;border: 1px solid lightgrey;background: #fafafa;z-index: 999999;position: fixed;bottom: 3px;right: 3px;box-shadow: rgb(0 0 0 / 16%) 0px 3px 8px 6px;display: block; border-radius: 3%;";
     if (initialLoad) {
       initialLoad = false;
       document
         .getElementById("close_mathType_window")
         .addEventListener("click", () => {
           insertMathML("<mrow></mrow>");
-          mathTypeWindow.style.display = "none";
+          event.source.postMessage({ action: "closeIFrame", data: "" }, "*");
         });
 
       document.getElementById("insert_mathml").addEventListener("click", () => {
         const wrapper = document.createElement("div");
         wrapper.appendChild(virtualDOM);
+        console;
         event.source.postMessage(
-          getImageHTML(
-            wrapper.innerHTML.replace(/ id=[^>]*/g, "").replace(/amp;*/g, ""),
-            event.source.MathJax.mathml2svg
-          )
+          {
+            action: "insertImage",
+            data: wrapper.innerHTML
+              .replace(/ id=[^>]*/g, "")
+              .replace(/amp;*/g, ""),
+          },
+          "*"
         );
         insertMathML("<mrow></mrow>");
-        mathTypeWindow.style.display = "none";
+        event.source.postMessage({ action: "closeIFrame", data: "" }, "*");
       });
     }
-    if (event.data.includes("<math>")) {
-      mathTypeWindow.style.display = "block";
-      caret = 0;
-      virtualDOM.innerHTML = event.data;
-      updateEquation();
-      caret = caretPositions.length - 1;
-      displayEquation();
+
+    switch (event.data.action) {
+      case "insertMathML":
+        event.source.postMessage({ action: "openIFrame", data: "" }, "*");
+        caret = 0;
+        virtualDOM.innerHTML = event.data.data;
+        updateEquation();
+        caret = caretPositions.length - 1;
+        displayEquation();
+        break;
     }
   });
 
