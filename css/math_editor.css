@@ -383,3 +383,67 @@ mjx-utext {
   width: 100%;
   height: 100vh;
 }
+
+#bracket_pad {
+  position: absolute;
+  z-index: 3;
+  top: 30px;
+  left: 30px;
+  font-family: sans-serif;
+  min-width: 0;
+}
+
+.panel_close {
+  float: right;
+  display: inline-block;
+  padding: 0px 4px;
+  background: #ccc;
+}
+
+#bracket_pad_table {
+  border-collapse: collapse;
+  border-spacing: 111px;
+  margin: 0;
+  width: 100%;
+}
+
+.bracket_panel_sel {
+  background-color: #778e9a;
+  color: #fff;
+}
+
+.bracket_pad_btn {
+  padding: 2px 5px;
+}
+
+#bracket_pad > div,
+#size_pad > div {
+  color: #000;
+  border: 1px solid #b1b3b4;
+  padding-top: 1px;
+  background-color: #edf2f4;
+}
+
+#bracket_pad_table,
+#size_pad_table {
+  border-collapse: collapse;
+  border-spacing: 111px;
+  margin: 0;
+  width: 100%;
+}
+
+#bracket_pad_table tbody tr td:hover {
+  background-color: #80808040;
+}
+
+#bracket_pad_table tbody tr td {
+  width: auto;
+  height: 22px;
+  border: 1px solid #b1b3b4;
+  cursor: pointer;
+  background-color: #fff;
+  text-align: center;
+  padding: 0px;
+  vertical-align: middle;
+  line-height: 22px;
+}

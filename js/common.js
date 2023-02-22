@@ -1,3 +1,4 @@
+export let selectedBrackets = {};
 export const createMatrix = (
   insert,
   updateEquation,
@@ -76,3 +77,16 @@ export const getImageHTML = (data, mml2svgConverter) =>
     '"',
     "'"
   )}" role="math" style="max-width: none; vertical-align: -4px;">`;
+
+export const closePad = (padId) => {
+  const matrixPadDiv = document.getElementById(padId);
+  matrixPadDiv.style.display = "none";
+};
+
+export const closeBracketPad = () => {
+  closePad("bracket_pad");
+  for (const ele of Object.values(selectedBrackets)) {
+    ele && ele.classList.remove("bracket_panel_sel");
+  }
+  selectedBrackets = {};
+};

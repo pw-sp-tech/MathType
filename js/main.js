@@ -1,5 +1,10 @@
 import createMathEditor from "./math_editor.js";
-import { handleTableCellHover } from "./common.js";
+import {
+  handleTableCellHover,
+  closePad,
+  closeBracketPad,
+  selectedBrackets,
+} from "./common.js";
 
 //Create instance of math type editor
 createMathEditor(
@@ -7,18 +12,21 @@ createMathEditor(
   document.getElementById("tab")
 );
 
-const closeMatrixPad = () => {
-  const matrixPadDiv = document.getElementById("mathtype_matrix_pad");
-  matrixPadDiv.style.display = "none";
-};
-
 document
   .getElementById("matrix_panel_0")
-  .addEventListener("click", closeMatrixPad);
+  .addEventListener("click", () => closePad("mathtype_matrix_pad"));
 
 document
   .getElementById("matrix_panel_5")
-  .addEventListener("click", closeMatrixPad);
+  .addEventListener("click", () => closePad("mathtype_matrix_pad"));
+
+document.getElementById("bracket_panel_0").addEventListener("click", () => {
+  closeBracketPad();
+});
+
+document.getElementById("bracket_panel_3").addEventListener("click", () => {
+  closeBracketPad();
+});
 
 document
   .getElementById("qwerty_pad_table")
@@ -35,3 +43,27 @@ document
       handleTableCellHover(rowIndex, columnIndex);
     }
   });
+
+document.getElementById("bracket_pad_table").addEventListener("click", (e) => {
+  let columnIndex = e.target.parentNode.cellIndex;
+  if (e.target.classList.contains("bracket_panel_sel")) {
+    columnIndex === 0
+      ? (selectedBrackets.left = null)
+      : (selectedBrackets.right = null);
+    e.target.classList.remove("bracket_panel_sel");
+  } else {
+    if (e.target.tagName.toLowerCase() === "div") {
+      if (columnIndex === 0) {
+        selectedBrackets?.left &&
+          selectedBrackets.left.classList.remove("bracket_panel_sel");
+        selectedBrackets.left = e.target;
+      } else {
+        selectedBrackets?.right &&
+          selectedBrackets.right.classList.remove("bracket_panel_sel");
+        selectedBrackets.right = e.target;
+      }
+
+      e.target.classList.add("bracket_panel_sel");
+    }
+  }
+});

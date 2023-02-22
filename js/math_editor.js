@@ -1,5 +1,13 @@
-import { buttonMethodMap } from "./palette_buttons_actions.js";
-import { createMatrix, getImageHTML } from "./common.js";
+import {
+  buttonMethodMap,
+  insertSymbol as insertSymbolFunc,
+} from "./palette_buttons_actions.js";
+import {
+  createMatrix,
+  getImageHTML,
+  closeBracketPad,
+  selectedBrackets,
+} from "./common.js";
 
 const createMathEditor = (editorContainer, toolBar) => {
   const equationContainer = document.createElement("div");
@@ -312,7 +320,7 @@ const createMathEditor = (editorContainer, toolBar) => {
   for (const [key, value] of Object.entries(buttonMethodMap)) {
     const elements = document.querySelectorAll(`button[title='${key}']`);
     for (const element of elements) {
-      if (value?.type === "customMatrix") {
+      if (value?.type === "customComponent") {
         element.addEventListener("click", () => value.method(element, value));
       } else if (value?.type === "matrix") {
         element.addEventListener("click", () =>
@@ -360,6 +368,8 @@ const createMathEditor = (editorContainer, toolBar) => {
   document
     .getElementById("matrix_panel_4")
     .addEventListener("click", createMatrixWithTabInputs);
+
+  //handle
 
   const insertMathML = (mathml) => {
     caret = 0;
@@ -413,6 +423,19 @@ const createMathEditor = (editorContainer, toolBar) => {
       caret = caretPositions.length - 1;
       displayEquation();
     }
+  });
+
+  //insert brackets
+  document.getElementById("bracket_panel_2").addEventListener("click", () => {
+    insertSymbolFunc(insert, updateEquation, {
+      attributes: {
+        open: selectedBrackets?.left?.innerText || "",
+        close: selectedBrackets?.right?.innerText || "",
+      },
+      tagName: "mfenced",
+      inputs: 1,
+    });
+    closeBracketPad();
   });
 };
 

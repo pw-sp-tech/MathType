@@ -32,7 +32,7 @@ const setAttributes = (element, attributes) => {
     element.setAttribute(key, value);
   }
 };
-const insertSymbol = (
+export const insertSymbol = (
   insert,
   updateEquation,
   { symbol, attributes, tagName, inputs }
@@ -46,16 +46,15 @@ const insertSymbol = (
   updateEquation();
 };
 
-const openMatrixPad = (ele, { attributes, isIdentityMatrix }) => {
+const openPad = (ele, { attributes, isIdentityMatrix, elementId }) => {
   handleTableCellHover(1, 1);
-  const matrixPadDiv = document.getElementById("mathtype_matrix_pad");
+  const padDiv = document.getElementById(elementId);
   const rectangle = ele.getBoundingClientRect();
-  matrixPadDiv.style.top = `${rectangle.top + rectangle.height * 0.5}px`;
-  matrixPadDiv.style.left = `${rectangle.right}px`;
-  matrixPadDiv.style.display = "block";
-  attributes &&
-    matrixPadDiv.setAttribute("attributes", JSON.stringify(attributes));
-  isIdentityMatrix && matrixPadDiv.setAttribute("isIdentityMatrix", "true");
+  padDiv.style.top = `${rectangle.top + rectangle.height * 0.5}px`;
+  padDiv.style.left = `${rectangle.right}px`;
+  padDiv.style.display = "block";
+  attributes && padDiv.setAttribute("attributes", JSON.stringify(attributes));
+  isIdentityMatrix && padDiv.setAttribute("isIdentityMatrix", "true");
 };
 
 const insertTree = (insert, updateEquation, { dynamicData, treeType }) => {
@@ -1260,41 +1259,52 @@ export const buttonMethodMap = {
   "Vertical Ellipsis": { ...SYMBOL_TEMPLATE_OBJECT, symbol: "⋮" },
 
   // --------------- ****** Matrix ****** --------------------------
-  "m x n Matrix": { method: openMatrixPad, type: "customMatrix" },
+  "m x n Matrix": {
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
+  },
   "m x n Matrix with Vertical Bars": {
-    method: openMatrixPad,
-    type: "customMatrix",
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
     attributes: { open: "|", close: "|" },
   },
   "m x n Matrix with Left Brace": {
-    method: openMatrixPad,
-    type: "customMatrix",
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
     attributes: { open: "{", close: "" },
   },
   "m x n Matrix with Parenthesis": {
-    method: openMatrixPad,
-    type: "customMatrix",
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
     attributes: {},
   },
   "m x n Matrix with Square Brackets": {
-    method: openMatrixPad,
-    type: "customMatrix",
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
     attributes: { open: "[", close: "]" },
   },
   "m x n Matrix with Right Brace": {
-    method: openMatrixPad,
-    type: "customMatrix",
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
     attributes: { open: "", close: "}" },
   },
   "n x n Identity Matrix with Parenthesis": {
-    method: openMatrixPad,
-    type: "customMatrix",
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
     attributes: {},
     isIdentityMatrix: true,
   },
   "n x n Identity Matrix with Square Brackets": {
-    method: openMatrixPad,
-    type: "customMatrix",
+    method: openPad,
+    elementId: "mathtype_matrix_pad",
+    type: "customComponent",
     attributes: { open: "[", close: "]" },
     isIdentityMatrix: true,
   },
@@ -2172,5 +2182,10 @@ export const buttonMethodMap = {
   Differential: {
     ...SYMBOL_TEMPLATE_OBJECT,
     symbol: "d",
+  },
+  "Select Brackets": {
+    method: openPad,
+    elementId: "bracket_pad",
+    type: "customComponent",
   },
 };
