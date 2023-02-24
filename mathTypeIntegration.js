@@ -43,7 +43,6 @@ const setIframeCommunication = (editor) => {
   if (!isPluginCommSet) {
     isPluginCommSet = true;
     window.addEventListener("message", (event) => {
-      console.log("event.data.action", event.data);
       switch (event.data.action) {
         case "closeIFrame":
           closeIframe();
@@ -52,10 +51,6 @@ const setIframeCommunication = (editor) => {
           openIFrame();
           break;
         case "insertImage":
-          console.log(
-            "getImageHTML",
-            getImageHTML(event.data.data, window.MathJax.mathml2svg)
-          );
           editor.insertContent(
             getImageHTML(event.data.data, window.MathJax.mathml2svg)
           );
