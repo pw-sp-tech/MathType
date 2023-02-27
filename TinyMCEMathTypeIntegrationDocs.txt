@@ -1,0 +1,75 @@
+MathType - TinyMCE Integration Steps:
+
+1) Add Iframe to the integration file(.html) with following attributes:
+    i) src -> http://mathtype-main.s3-website.ap-south-1.amazonaws.com/
+    ii) name -> "mathType"
+    iii) id -> "mathType"
+
+    Example:    <div class="iframe-container">
+                    <textarea id="tinymce-editor"></textarea>
+                    <iframe
+                        id="mathType"
+                        name="mathType"
+                        style="display: none"
+                        src="http://mathtype-main.s3-website.ap-south-1.amazonaws.com/"
+                    ></iframe>
+                </div>
+
+2) In `external_plugins` config of TinyMCE add following properties:
+    
+    i) tiny_mce_mathType -> "https://mathtype-main.s3.ap-south-1.amazonaws.com/mathTypeIntegration.js"
+        MathTypeIntegration file sets the communication between mathType editor and TinyMCE Editor.
+    
+    ii) tiny_mce_wiris: "/plugin.min.js" (wiris plugin file Path)
+            Download `https://www.wiris.net/demo/plugins/tiny_mce/plugin.js` and add it to local repo.  
+
+    Example:     tinymce.init({
+                    external_plugins: {
+                        tiny_mce_wiris: "/plugin.min.js",
+                        tiny_mce_mathType:
+                        "https://mathtype-main.s3.ap-south-1.amazonaws.com/mathTypeIntegration.js",
+                    },
+                })
+
+3) Plugin and toolar configuration:
+    Example:    tinymce.init({
+                    plugins: [
+                        "MathType",
+                    ],
+                    toolbar: "MathType"
+                });
+
+Example Integration File: tinyMCE.html
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script type="text/javascript" src="https://cdn.tiny.cloud/1/5nx8v7kaunhbu8uhge4bydbzpjcy7dh0mulsy1pkgzenxczn/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"
+        ></script>
+    </head>
+
+    <body>
+        <div class="iframe-container">
+        <textarea id="tinymce-editor"></textarea>
+        <iframe
+            id="mathType"
+            name="mathType"
+            src="http://mathtype-main.s3-website.ap-south-1.amazonaws.com/"
+        ></iframe>
+        </div>
+    </body>
+
+    <script>
+        tinymce.init({
+        selector: "#tinymce-editor",
+        width: "100%",
+        height: "100%",
+        external_plugins: {
+            tiny_mce_wiris: "/plugin.min.js",
+            tiny_mce_mathType: "https://mathtype-main.s3.ap-south-1.amazonaws.com/mathTypeIntegration.js",
+        },
+        plugins: ["MathType"],
+        toolbar: "mathtype",
+        });
+    </script>
+    </html>

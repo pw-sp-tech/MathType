@@ -240,6 +240,7 @@ const createMathEditor = (editorContainer, toolBar) => {
   };
 
   editorContainer.onkeydown = (e) => {
+    let ele = null;
     switch (e.key) {
       case "ArrowLeft":
         if (caret > 0) {
@@ -266,10 +267,16 @@ const createMathEditor = (editorContainer, toolBar) => {
         updateEquation();
         break;
       case "Enter":
-        const ele = document.createElement("mspace");
+        ele = document.createElement("mspace");
         ele.setAttribute("linebreak", "newline");
         insert(ele, 1);
         updateEquation();
+        break;
+      case " ":
+        insertSymbolFunc(insert, updateEquation, {
+          attributes: { width: "0.4em" },
+          tagName: "mspace",
+        });
         break;
       default:
     }
