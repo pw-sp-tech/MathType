@@ -25,18 +25,20 @@ const getImageHTML = (data, mml2svgConverter) =>
   )}" role="math" style="max-width: none; vertical-align: -4px;">`;
 
 const closeIframe = () => {
-  const mathTypeWindow = document.getElementById("myIframe");
+  const mathTypeWindow = document.getElementById("mathType");
   mathTypeWindow.style.display = "none";
 };
 
 const openIFrame = () => {
-  const mathTypeWindow = document.getElementById("myIframe");
+  const mathTypeWindow = document.getElementById("mathType");
   mathTypeWindow.style.display = "block";
   mathTypeWindow.style =
     "bottom: 0px;right: 10px;height: 422px;width: 700px;border: 1px solid lightgrey;background: #fafafa;z-index: 999999;position: fixed;bottom: 3px;right: 3px;box-shadow: rgb(0 0 0 / 16%) 0px 3px 8px 6px;display: block; border-radius: 3%;";
 };
 
 let isPluginCommSet = false;
+closeIframe();
+
 const setIframeCommunication = (editor) => {
   const iFrame = window.frames.mathType;
   iFrame.postMessage({ action: "setCommunication", data: "" }, "*");
@@ -73,8 +75,8 @@ const setIframeCommunication = (editor) => {
 };
 
 tinymce.PluginManager.add("MathType", (editor) => {
-  editor.ui.registry.addButton("mathEditor", {
-    text: "Insert Math",
+  editor.ui.registry.addButton("mathtype", {
+    text: "MathType",
     onAction: () => {
       openIFrame();
       setIframeCommunication(editor);
