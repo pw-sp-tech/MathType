@@ -38,6 +38,10 @@ const createMathEditor = (editorContainer, toolBar) => {
   let uniqueId = 0;
 
   let genericCursorPosition = null;
+  let traceHistory = false;
+  const historyData = [];
+  let hIndex = -1;
+
   const setCaretPositions = (root, x, y) => {
     const nodeType = root.tagName.toLowerCase();
     const rectangle = document
@@ -188,6 +192,15 @@ const createMathEditor = (editorContainer, toolBar) => {
 
     const rect = equationContainer.getBoundingClientRect();
     setCaretPositions(virtualDOM.firstElementChild, rect.x, rect.y);
+    if (!traceHistory) {
+      const historyRecord = {
+        caret: caret,
+        mathml: virtualDOM.innerHTML,
+      };
+      ++hIndex;
+      historyData.splice(hIndex);
+      historyData.push(historyRecord);
+    }
     displayEquation();
   };
 
@@ -253,7 +266,31 @@ const createMathEditor = (editorContainer, toolBar) => {
     updateEquation();
   };
 
+  const undo = () => {
+    traceHistory = true;
+    if (hIndex > 0) {
+      --hIndex;
+      const historyRecord = historyData[hIndex];
+      caret = historyRecord.caret;
+      virtualDOM.innerHTML = historyRecord.mathml;
+      updateEquation();
+    }
+    traceHistory = false;
+  };
+  const redo = () => {
+    traceHistory = true;
+    if (hIndex + 1 < historyData.length) {
+      ++hIndex;
+      const historyRecord = historyData[hIndex];
+      caret = historyRecord.caret;
+      virtualDOM.innerHTML = historyRecord.mathml;
+      updateEquation();
+    }
+    traceHistory = false;
+  };
+
   editorContainer.onkeydown = (e) => {
+    e.preventDefault();
     let ele = null;
     switch (e.key) {
       case "ArrowLeft":
@@ -293,11 +330,20 @@ const createMathEditor = (editorContainer, toolBar) => {
         });
         break;
       default:
+        if (e.ctrlKey || e.metaKey) {
+          switch (e.key) {
+            case "z":
+              undo();
+              return;
+            case "y":
+              redo();
+              return;
+          }
+        }
     }
     if (e.key.length === 1 && e.key !== " ") {
       insertSymbol(e.key);
     }
-    e.preventDefault();
   };
 
   updateEquation();
@@ -423,7 +469,6 @@ const createMathEditor = (editorContainer, toolBar) => {
       document.getElementById("insert_mathml").addEventListener("click", () => {
         const wrapper = document.createElement("div");
         wrapper.appendChild(virtualDOM);
-        console;
         event.source.postMessage(
           {
             action: "insertImage",
