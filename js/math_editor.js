@@ -37,6 +37,7 @@ const createMathEditor = (editorContainer, toolBar) => {
   let caretPositions;
   let uniqueId = 0;
 
+  let genericCursorPosition = null;
   const setCaretPositions = (root, x, y) => {
     const nodeType = root.tagName.toLowerCase();
     const rectangle = document
@@ -68,6 +69,9 @@ const createMathEditor = (editorContainer, toolBar) => {
       ];
       lastPosition.parent = root;
       lastPosition.index = 0;
+      if (!genericCursorPosition) {
+        genericCursorPosition = lastPosition.rectangle;
+      }
       caretPositions.push(lastPosition);
 
       for (let j = 0; j < root.childElementCount; j++) {
@@ -112,12 +116,22 @@ const createMathEditor = (editorContainer, toolBar) => {
           return start;
         };
         setCaretPositions(child, x, y);
+        if (childRectangle.height === 0) {
+          lastPosition.rectangle = [
+            ...lastPosition.rectangle.slice(0, 2),
+            genericCursorPosition[2],
+            genericCursorPosition[3],
+          ];
+        }
         caretPositions.push(lastPosition);
       }
     } else if (nodeType === "mroot") {
       setCaretPositions(root.children[1], x, y);
       setCaretPositions(root.children[0], x, y);
-    } else if (nodeType === "mi" || nodeType === "mo" || nodeType === "mn") {
+    } else if (
+      (nodeType === "mi" || nodeType === "mo" || nodeType === "mn",
+      nodeType === "mspace")
+    ) {
     } else {
       for (let child of root.children) {
         setCaretPositions(child, x, y);
@@ -280,7 +294,7 @@ const createMathEditor = (editorContainer, toolBar) => {
         break;
       default:
     }
-    if (e.key.length === 1) {
+    if (e.key.length === 1 && e.key !== " ") {
       insertSymbol(e.key);
     }
     e.preventDefault();
