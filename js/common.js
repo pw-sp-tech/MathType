@@ -60,23 +60,14 @@ export const handleTableCellHover = (rowIndex, columnIndex) => {
   }
 };
 
-const convertMathMLToImage = (mathml, mml2svgConverter) => {
-  const svg = mml2svgConverter(mathml).querySelector("svg");
+export const convertMathMLToImage = (mathml) => {
+  const svg = window.MathJax.tex2svg(mathml).querySelector("svg");
   const xml = new XMLSerializer().serializeToString(svg);
   const svg64 = btoa(unescape(encodeURIComponent(xml)));
   const b64start = "data:image/svg+xml;base64,";
   const image64 = b64start + svg64;
   return image64;
 };
-
-export const getImageHTML = (data, mml2svgConverter) =>
-  `<img align="middle" src="${convertMathMLToImage(
-    data,
-    mml2svgConverter
-  )}" data-mathml="${data.replaceAll(
-    '"',
-    "'"
-  )}" role="math" style="max-width: none; vertical-align: -4px;">`;
 
 export const closePad = (padId) => {
   const matrixPadDiv = document.getElementById(padId);

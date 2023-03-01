@@ -1,25 +1,7 @@
-const mathJAXComponent = document.createElement("script");
-mathJAXComponent.setAttribute(
-  "src",
-  "https://cdn.jsdelivr.net/npm/mathjax@3/es5/mml-svg.js"
-);
-
-document.getElementsByTagName("head")[0].appendChild(mathJAXComponent);
-
-const convertMathMLToImage = (mathml, mml2svgConverter) => {
-  const svg = mml2svgConverter(mathml).querySelector("svg");
-  const xml = new XMLSerializer().serializeToString(svg);
-  const svg64 = btoa(unescape(encodeURIComponent(xml)));
-  const b64start = "data:image/svg+xml;base64,";
-  const image64 = b64start + svg64;
-  return image64;
-};
-
-const getImageHTML = (data, mml2svgConverter) =>
-  `<img align="middle" src="${convertMathMLToImage(
-    data,
-    mml2svgConverter
-  )}" data-mathml="${data.replaceAll(
+const getImageHTML = (data) =>
+  `<img align="middle" src="${
+    data.imgSrc
+  }" data-mathml="${data.mathML.replaceAll(
     '"',
     "'"
   )}" role="math" style="max-width: none; vertical-align: -4px;">`;
@@ -53,9 +35,7 @@ const setIframeCommunication = (editor) => {
           openIFrame();
           break;
         case "insertImage":
-          editor.insertContent(
-            getImageHTML(event.data.data, window.MathJax.mathml2svg)
-          );
+          editor.insertContent(getImageHTML(event.data.data));
           editor.contentWindow.document.addEventListener("click", (e) => {
             if (e.target.tagName.toLowerCase() === "img") {
               iFrame.postMessage(

@@ -4,9 +4,9 @@ import {
 } from "./palette_buttons_actions.js";
 import {
   createMatrix,
-  getImageHTML,
   closeBracketPad,
   selectedBrackets,
+  convertMathMLToImage,
 } from "./common.js";
 
 const createMathEditor = (editorContainer, toolBar) => {
@@ -469,12 +469,13 @@ const createMathEditor = (editorContainer, toolBar) => {
       document.getElementById("insert_mathml").addEventListener("click", () => {
         const wrapper = document.createElement("div");
         wrapper.appendChild(virtualDOM);
+        const mml = wrapper.innerHTML
+          .replace(/ id=[^>]*/g, "")
+          .replace(/amp;*/g, "");
         event.source.postMessage(
           {
             action: "insertImage",
-            data: wrapper.innerHTML
-              .replace(/ id=[^>]*/g, "")
-              .replace(/amp;*/g, ""),
+            data: { imgSrc: convertMathMLToImage(mml), mathML: mml },
           },
           "*"
         );
