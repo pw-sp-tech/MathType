@@ -181,7 +181,9 @@ const createMathEditor = (editorContainer, toolBar) => {
     math.setAttribute("xmlns", "http://www.w3.org/1998/Math/MathML");
     math.appendChild(deepCopy(virtualDOM.firstElementChild));
     preview.appendChild(math);
-    window.MathJax.typeset([preview]);
+    if (window.MathJax.typeset) {
+      window.MathJax.typeset([preview]);
+    }
     //update text elements styling
     for (const ele of document.getElementsByTagName("mjx-utext")) {
       if (["normal", "-smallop"].includes(ele.getAttribute("variant"))) {
