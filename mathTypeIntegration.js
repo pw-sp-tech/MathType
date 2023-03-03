@@ -54,7 +54,7 @@ const setIframeCommunication = (editor) => {
   }
 };
 
-tinymce.PluginManager.add("MathType", (editor) => {
+tinymce.PluginManager.add("MathType", function (editor) {
   editor.ui.registry.addButton("mathtype", {
     text: "MathType",
     onAction: () => {
