@@ -18,6 +18,9 @@ const createMathEditor = (editorContainer, toolBar) => {
   preview.classList.add("equation-editor-preview");
   equationContainer.appendChild(preview);
 
+  const selection = document.createElement("span");
+  selection.classList.add("equation-editor-selection");
+  equationContainer.appendChild(selection);
   //Caret or text cursor
   const caretCursor = document.createElement("span");
   caretCursor.classList.add("equation-editor-caret");
@@ -33,6 +36,8 @@ const createMathEditor = (editorContainer, toolBar) => {
   //current caret position
   let caret = 0;
 
+  const selectionRange = [0, 0];
+
   //stores caret postion relative to equation container
   let caretPositions;
   let uniqueId = 0;
@@ -42,7 +47,9 @@ const createMathEditor = (editorContainer, toolBar) => {
   const historyData = [];
   let hIndex = -1;
 
-  const setCaretPositions = (root, x, y) => {
+  let elementCursorPostions;
+
+  const setCaretPositions = (root, considerStart, x, y) => {
     const nodeType = root.tagName.toLowerCase();
     const rectangle = document
       .getElementById("i" + root.id)
@@ -53,30 +60,34 @@ const createMathEditor = (editorContainer, toolBar) => {
       const height = rectangle.height;
       let left = rectangle.left;
       let right;
-      let lastPosition = {};
-
-      if (root.childElementCount == 0) {
-        right = rectangle.right;
-        lastPosition.x = (left + right) * 0.5 - x;
-      } else {
-        const firstChildRectangle = document
-          .getElementById("i" + root.firstChild.id)
-          .getBoundingClientRect();
-        right = firstChildRectangle.left + 0.25 * firstChildRectangle.width;
-        lastPosition.x = left - x;
+      let lastPosition = null;
+      const parentStart = caretPositions.length - 1;
+      if (considerStart) {
+        lastPosition = {};
+        if (root.childElementCount == 0) {
+          right = rectangle.right;
+          lastPosition.x = (left + right) * 0.5 - x;
+        } else {
+          const firstChildRectangle = document
+            .getElementById("i" + root.firstChild.id)
+            .getBoundingClientRect();
+          right = firstChildRectangle.left + 0.25 * firstChildRectangle.width;
+          lastPosition.x = left - x;
+        }
+        lastPosition.rectangle = [
+          left - x,
+          right - x,
+          upper - y,
+          upper + height - y,
+        ];
+        lastPosition.parent = root;
+        lastPosition.self = root;
+        lastPosition.index = 0;
+        if (!genericCursorPosition) {
+          genericCursorPosition = lastPosition.rectangle;
+        }
+        caretPositions.push(lastPosition);
       }
-      lastPosition.rectangle = [
-        left - x,
-        right - x,
-        upper - y,
-        upper + height - y,
-      ];
-      lastPosition.parent = root;
-      lastPosition.index = 0;
-      if (!genericCursorPosition) {
-        genericCursorPosition = lastPosition.rectangle;
-      }
-      caretPositions.push(lastPosition);
 
       for (let j = 0; j < root.childElementCount; j++) {
         let child = root.children[j];
@@ -84,10 +95,13 @@ const createMathEditor = (editorContainer, toolBar) => {
           .getElementById("i" + child.id)
           .getBoundingClientRect();
         let start = caretPositions.length - 1;
-        lastPosition.deleteForward = () => {
-          root.removeChild(child);
-          return start;
-        };
+        //setting delete for previous element
+        if (lastPosition != null) {
+          lastPosition.deleteForward = () => {
+            root.removeChild(child);
+            return start;
+          };
+        }
         lastPosition = {};
         left = childRectangle.left + 0.75 * childRectangle.width;
         if (j + 1 < root.childElementCount) {
@@ -114,12 +128,15 @@ const createMathEditor = (editorContainer, toolBar) => {
           lastPosition.x = right - x;
         }
         lastPosition.parent = root;
+        lastPosition.self = child;
         lastPosition.index = j + 1;
         lastPosition.deleteBackward = () => {
           root.removeChild(child);
           return start;
         };
-        setCaretPositions(child, x, y);
+        setCaretPositions(child, true, x, y);
+        const end = caretPositions.length - 1;
+
         if (childRectangle.height === 0) {
           lastPosition.rectangle = [
             ...lastPosition.rectangle.slice(0, 2),
@@ -127,18 +144,25 @@ const createMathEditor = (editorContainer, toolBar) => {
             genericCursorPosition[3],
           ];
         }
+        elementCursorPostions.set(child, [start, end]);
         caretPositions.push(lastPosition);
       }
+      elementCursorPostions.set(root, [
+        parentStart,
+        caretPositions.length - 1 >= 0 ? caretPositions.length - 1 : 0,
+      ]);
     } else if (nodeType === "mroot") {
-      setCaretPositions(root.children[1], x, y);
-      setCaretPositions(root.children[0], x, y);
+      setCaretPositions(root.children[1], true, x, y);
+      setCaretPositions(root.children[0], true, x, y);
     } else if (
-      (nodeType === "mi" || nodeType === "mo" || nodeType === "mn",
-      nodeType === "mspace")
+      nodeType === "mi" ||
+      nodeType === "mo" ||
+      nodeType === "mn" ||
+      nodeType === "mspace"
     ) {
     } else {
       for (let child of root.children) {
-        setCaretPositions(child, x, y);
+        setCaretPositions(child, true, x, y);
       }
     }
   };
@@ -166,6 +190,7 @@ const createMathEditor = (editorContainer, toolBar) => {
   };
 
   const displayEquation = () => {
+    if (caret > caretPositions.length - 1) caret = caretPositions.length - 1;
     let caretPosition = caretPositions[caret];
     caretCursor.style.left = caretPosition.x + "px";
     caretCursor.style.top = caretPosition.rectangle[2] + "px";
@@ -175,8 +200,10 @@ const createMathEditor = (editorContainer, toolBar) => {
   };
 
   const updateEquation = () => {
+    uniqueId = 0;
     caretPositions = [];
     preview.textContent = "";
+    elementCursorPostions = new Map();
     const math = document.createElement("math");
     math.setAttribute("xmlns", "http://www.w3.org/1998/Math/MathML");
     math.appendChild(deepCopy(virtualDOM.firstElementChild));
@@ -193,7 +220,7 @@ const createMathEditor = (editorContainer, toolBar) => {
     }
 
     const rect = equationContainer.getBoundingClientRect();
-    setCaretPositions(virtualDOM.firstElementChild, rect.x, rect.y);
+    setCaretPositions(virtualDOM.firstElementChild, true, rect.x, rect.y);
     if (!traceHistory) {
       const historyRecord = {
         caret: caret,
@@ -208,6 +235,7 @@ const createMathEditor = (editorContainer, toolBar) => {
 
   editorContainer.onclick = () => {
     editorContainer.focus();
+    unSelectRange();
   };
 
   const insert = (element, offset) => {
@@ -238,8 +266,51 @@ const createMathEditor = (editorContainer, toolBar) => {
     updateEquation();
   };
 
+  const hasElementMathId = (ele) =>
+    ele?.id && ele?.id.includes("imath") ? true : false;
+
+  const getElementWithMathId = (ele) => {
+    return hasElementMathId(ele)
+      ? ele.id.slice(1)
+      : getElementWithMathId(ele.parentElement);
+  };
+
+  preview.onmousedown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    unSelectRange();
+    const elementId = getElementWithMathId(e.target);
+    const [initialEleSPoint, initialEleEPoint] = elementCursorPostions.get(
+      virtualDOM.querySelector(`#${elementId}`)
+    );
+
+    preview.onmousemove = (e) => {
+      e.preventDefault();
+      const elementId = getElementWithMathId(e.target);
+      const [start, end] = elementCursorPostions.get(
+        virtualDOM.querySelector(`#${elementId}`)
+      );
+      if (start < initialEleSPoint && end > initialEleEPoint) {
+        selectRange(start, end);
+      } else if (start < initialEleSPoint && end < initialEleEPoint) {
+        selectRange(start, initialEleEPoint);
+      } else if (start > initialEleSPoint && end > initialEleEPoint) {
+        selectRange(initialEleSPoint, end);
+      } else {
+        selectRange(initialEleSPoint, initialEleEPoint);
+      }
+    };
+  };
+
+  preview.onmouseup = (e) => {
+    e.stopPropagation();
+    preview.onmousemove = null;
+    caret = selectionRange[1];
+  };
   //update the postion of caret postion based on click position
+
   preview.onclick = (e) => {
+    e.stopPropagation();
     const containerRect = equationContainer.getBoundingClientRect();
     const element = e.target.getBoundingClientRect();
     const elementLeft = element.left - containerRect.left + element.width / 2;
@@ -291,38 +362,77 @@ const createMathEditor = (editorContainer, toolBar) => {
     traceHistory = false;
   };
 
+  const setSelectionRange = (rStart, rEnd) => {
+    selectionRange[0] = rStart || 0;
+    selectionRange[1] = rEnd || caretPositions.length - 1;
+  };
+  const unSelectRange = () => {
+    selection.style = "";
+    selectionRange[0] = selectionRange[1] = 0;
+  };
+
+  const selectRange = (start, end) => {
+    setSelectionRange(start, end);
+    const startPosition = caretPositions[selectionRange[0]].rectangle;
+    const endPosition = caretPositions[selectionRange[1]].rectangle;
+    selection.style.left = `${caretPositions[selectionRange[0]].x}px`;
+    selection.style.width = `${endPosition[1] - startPosition[0] + 2}px`;
+    selection.style.top = startPosition[2] + "px";
+    selection.style.height = startPosition[3] - startPosition[2] + 1 + "px";
+    selection.style.backgroundColor = `rgb(176 207 250)`;
+    selection.style.border = `1px solid black`;
+  };
+
   editorContainer.onkeydown = (e) => {
     e.preventDefault();
     let ele = null;
+
     switch (e.key) {
       case "ArrowLeft":
         if (caret > 0) {
           --caret;
         }
+        unSelectRange();
         displayEquation();
         break;
       case "ArrowRight":
         if (caret + 1 < caretPositions.length) {
           ++caret;
         }
+        unSelectRange();
         displayEquation();
-        break;
-      case "Backspace":
-        if (caretPositions[caret].deleteBackward) {
-          caret = caretPositions[caret].deleteBackward();
-        }
-        updateEquation();
         break;
       case "Delete":
         if (caretPositions[caret].deleteForward) {
           caret = caretPositions[caret].deleteForward();
         }
+        unSelectRange();
         updateEquation();
         break;
-      case "Enter":
-        ele = document.createElement("mspace");
-        ele.setAttribute("linebreak", "newline");
-        insert(ele, 1);
+      case "Backspace":
+        const [start, end] = elementCursorPostions.get(
+          caretPositions[caret].self
+        );
+        if (
+          end - start > 0 &&
+          selectionRange[0] === 0 &&
+          selectionRange[1] === 0 &&
+          caretPositions[caret].self.tagName.toLowerCase() !== "mrow"
+        ) {
+          selectRange(start, end + 1);
+        } else if (selectionRange[0] > 0 || selectionRange[1] > 0) {
+          for (let i = selectionRange[1] + 1; i > selectionRange[0]; i--) {
+            if (caretPositions[i]?.deleteBackward) {
+              caret = caretPositions[i].deleteBackward();
+            }
+          }
+          unSelectRange();
+        } else {
+          if (caretPositions[caret].deleteBackward) {
+            caret = caretPositions[caret].deleteBackward();
+          }
+          unSelectRange();
+        }
         updateEquation();
         break;
       case " ":
@@ -336,15 +446,24 @@ const createMathEditor = (editorContainer, toolBar) => {
           switch (e.key) {
             case "z":
               undo();
-              return;
+              break;
             case "y":
               redo();
-              return;
+              break;
+            case "a":
+              selectRange();
+              break;
+          }
+        } else {
+          switch (e.key) {
+            default:
+              if (!e.isComposing) {
+                if (e.key.length === 1 && e.key !== " ") {
+                  insertSymbol(e.key);
+                }
+              }
           }
         }
-    }
-    if (e.key.length === 1 && e.key !== " ") {
-      insertSymbol(e.key);
     }
   };
 
