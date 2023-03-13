@@ -79,6 +79,12 @@ body {
       format("svg");
 }
 
+.equation-editor-selection {
+  z-index: 0;
+  position: absolute;
+  border: 1pt solid rgb(79, 210, 228);
+}
+
 .equation-editor {
   border-bottom: 1pt solid black;
   text-align: left;
