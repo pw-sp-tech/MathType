@@ -147,9 +147,8 @@ body {
 /* tab bar stylinging */
 .tab_bar {
   display: block;
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
   -ms-overflow-y: hidden;
   white-space: nowrap;
   padding: 5px 0 0 0;
@@ -248,9 +247,8 @@ table > tr {
   background: transparent;
   display: block;
   margin: 0 6px 0 6px;
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
   -ms-overflow-y: hidden; /*for IE8*/
   white-space: nowrap;
 }
@@ -267,12 +265,6 @@ table > tr {
   overflow: hidden;
   direction: ltr;
   outline-width: 0;
-}
-
-.palette_wrapper {
-  border: 2px solid transparent;
-  background: transparent;
-  overflow: scroll;
 }
 
 .qwerty_palettebtn_disabled {
@@ -452,4 +444,15 @@ mjx-utext {
   padding: 0px;
   vertical-align: middle;
   line-height: 22px;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  background: rgba(250, 250, 250, 1);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #b1b1b1;
 }
