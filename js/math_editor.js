@@ -609,7 +609,7 @@ const createMathEditor = (editorContainer, toolBar) => {
       case "insertMathML":
         event.source.postMessage({ action: "openIFrame", data: "" }, "*");
         caret = 0;
-        virtualDOM.innerHTML = event.data.data;
+        virtualDOM.innerHTML = event.data.data.replaceAll("§", "&");
         updateEquation();
         caret = caretPositions.length - 1;
         displayEquation();
