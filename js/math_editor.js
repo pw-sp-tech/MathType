@@ -26,6 +26,12 @@ const createMathEditor = (editorContainer, toolBar) => {
   caretCursor.classList.add("equation-editor-caret");
   equationContainer.appendChild(caretCursor);
 
+  //for clipboard selection
+  var exchange = document.createElement("div");
+  exchange.tabIndex = 1000;
+  exchange.classList.add("equation-editor-exchange");
+  equationContainer.appendChild(exchange);
+
   //Adding equation container to editorContainer
   editorContainer.appendChild(equationContainer);
 
@@ -48,6 +54,8 @@ const createMathEditor = (editorContainer, toolBar) => {
   let hIndex = -1;
 
   let elementCursorPostions;
+
+  var pesudoClipboard = "<mrow></mrow>";
 
   const setCaretPositions = (root, considerStart, x, y) => {
     const nodeType = root.tagName.toLowerCase();
@@ -235,7 +243,7 @@ const createMathEditor = (editorContainer, toolBar) => {
 
   editorContainer.onclick = () => {
     editorContainer.focus();
-    unSelectRange();
+    clearSelectRange();
   };
 
   const insert = (element, offset) => {
@@ -275,38 +283,38 @@ const createMathEditor = (editorContainer, toolBar) => {
       : getElementWithMathId(ele.parentElement);
   };
 
-  preview.onmousedown = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    unSelectRange();
-    const elementId = getElementWithMathId(e.target);
-    const [initialEleSPoint, initialEleEPoint] = elementCursorPostions.get(
-      virtualDOM.querySelector(`#${elementId}`)
-    );
+  // preview.onmousedown = (e) => {
+  //   e.stopPropagation();
+  //   e.preventDefault();
+  //   clearSelectRange();
+  //   const elementId = getElementWithMathId(e.target);
+  //   const [initialEleSPoint, initialEleEPoint] = elementCursorPostions.get(
+  //     virtualDOM.querySelector(`#${elementId}`)
+  //   );
 
-    preview.onmousemove = (e) => {
-      e.preventDefault();
-      const elementId = getElementWithMathId(e.target);
-      const [start, end] = elementCursorPostions.get(
-        virtualDOM.querySelector(`#${elementId}`)
-      );
-      if (start < initialEleSPoint && end > initialEleEPoint) {
-        selectRange(start, end);
-      } else if (start < initialEleSPoint && end < initialEleEPoint) {
-        selectRange(start, initialEleEPoint);
-      } else if (start > initialEleSPoint && end > initialEleEPoint) {
-        selectRange(initialEleSPoint, end);
-      } else {
-        selectRange(initialEleSPoint, initialEleEPoint);
-      }
-    };
-  };
+  //   preview.onmousemove = (e) => {
+  //     e.preventDefault();
+  //     const elementId = getElementWithMathId(e.target);
+  //     const [start, end] = elementCursorPostions.get(
+  //       virtualDOM.querySelector(`#${elementId}`)
+  //     );
+  //     if (start < initialEleSPoint && end > initialEleEPoint) {
+  //       selectRange(start, end);
+  //     } else if (start < initialEleSPoint && end < initialEleEPoint) {
+  //       selectRange(start, initialEleEPoint);
+  //     } else if (start > initialEleSPoint && end > initialEleEPoint) {
+  //       selectRange(initialEleSPoint, end);
+  //     } else {
+  //       selectRange(initialEleSPoint, initialEleEPoint);
+  //     }
+  //   };
+  // };
 
-  preview.onmouseup = (e) => {
-    e.stopPropagation();
-    preview.onmousemove = null;
-    caret = selectionRange[1];
-  };
+  // preview.onmouseup = (e) => {
+  //   e.stopPropagation();
+  //   preview.onmousemove = null;
+  //   caret = selectionRange[1];
+  // };
   //update the postion of caret postion based on click position
 
   preview.onclick = (e) => {
@@ -366,7 +374,7 @@ const createMathEditor = (editorContainer, toolBar) => {
     selectionRange[0] = rStart || 0;
     selectionRange[1] = rEnd || caretPositions.length - 1;
   };
-  const unSelectRange = () => {
+  const clearSelectRange = () => {
     selection.style = "";
     selectionRange[0] = selectionRange[1] = 0;
   };
@@ -383,30 +391,73 @@ const createMathEditor = (editorContainer, toolBar) => {
     selection.style.border = `1px solid black`;
   };
 
+  const writeToClipboard = function (text) {
+    pesudoClipboard = text;
+    exchange.textContent = text;
+    exchange.focus();
+    document.getSelection().removeAllRanges();
+    var range = new Range();
+    range.selectNodeContents(exchange);
+    document.getSelection().addRange(range);
+    document.execCommand("copy");
+    exchange.textContent = "";
+    equationContainer.focus();
+  };
+
+  var cut = function () {
+    writeToClipboard(virtualDOM.innerHTML.replace(/ id=[^>]*/g, ""));
+    virtualDOM.innerHTML = "<mrow></mrow>";
+    clearSelectRange();
+    caret = 0;
+    updateEquation();
+  };
+
+  var copy = function () {
+    writeToClipboard(virtualDOM.innerHTML.replace(/ id=[^>]*/g, ""));
+    clearSelectRange();
+  };
+
+  var pasteText = function (text) {
+    clearSelectRange();
+    var math = document.createElement("math");
+    math.innerHTML = text;
+    var child;
+    for (var i = 0; i < math.childElementCount; i++) {
+      child = math.children[i];
+      insert(child, 1);
+    }
+    updateEquation();
+  };
+  var paste = function () {
+    if (navigator.clipboard) {
+      navigator.clipboard.readText().then(pasteText);
+    } else {
+      pasteText(pesudoClipboard);
+    }
+  };
+
   editorContainer.onkeydown = (e) => {
     e.preventDefault();
-    let ele = null;
-
     switch (e.key) {
       case "ArrowLeft":
         if (caret > 0) {
           --caret;
         }
-        unSelectRange();
+        clearSelectRange();
         displayEquation();
         break;
       case "ArrowRight":
         if (caret + 1 < caretPositions.length) {
           ++caret;
         }
-        unSelectRange();
+        clearSelectRange();
         displayEquation();
         break;
       case "Delete":
         if (caretPositions[caret].deleteForward) {
           caret = caretPositions[caret].deleteForward();
         }
-        unSelectRange();
+        clearSelectRange();
         updateEquation();
         break;
       case "Backspace":
@@ -426,12 +477,12 @@ const createMathEditor = (editorContainer, toolBar) => {
               caret = caretPositions[i].deleteBackward();
             }
           }
-          unSelectRange();
+          clearSelectRange();
         } else {
           if (caretPositions[caret].deleteBackward) {
             caret = caretPositions[caret].deleteBackward();
           }
-          unSelectRange();
+          clearSelectRange();
         }
         updateEquation();
         break;
@@ -452,6 +503,15 @@ const createMathEditor = (editorContainer, toolBar) => {
               break;
             case "a":
               selectRange();
+              break;
+            case "x":
+              cut();
+              break;
+            case "c":
+              copy();
+              break;
+            case "v":
+              paste();
               break;
           }
         } else {
@@ -575,6 +635,16 @@ const createMathEditor = (editorContainer, toolBar) => {
     }
   });
 
+  document.getElementById("cut").addEventListener("click", (e) => {
+    cut();
+  });
+  document.getElementById("copy").addEventListener("click", (e) => {
+    copy();
+  });
+  document.getElementById("paste").addEventListener("click", (e) => {
+    paste();
+  });
+
   //For cross-origin/cross-window communication(iframe)
   let initialLoad = true;
   window.addEventListener("message", (event) => {
@@ -609,7 +679,7 @@ const createMathEditor = (editorContainer, toolBar) => {
       case "insertMathML":
         event.source.postMessage({ action: "openIFrame", data: "" }, "*");
         caret = 0;
-        virtualDOM.innerHTML = event.data.data.replaceAll("§", "&");
+        virtualDOM.innerHTML = event.data.data;
         updateEquation();
         caret = caretPositions.length - 1;
         displayEquation();
